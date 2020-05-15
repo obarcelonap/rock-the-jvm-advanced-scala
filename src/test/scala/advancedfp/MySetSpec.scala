@@ -192,4 +192,25 @@ class MySetSpec extends AnyFunSpec with Matchers {
       newSet should be(MySet("a", "c"))
     }
   }
+  describe("!") {
+    it("returns a set containing all the possible values when negating empty set") {
+      val mySet = MySet[String]()
+
+      val newSet = !mySet
+
+      newSet("doesnotmatter") should be(true)
+    }
+
+    it("returns a set containing infinite values except the originals when negating a set with values") {
+      val mySet = MySet[String]("a", "b", "c")
+
+      val newSet = !mySet
+
+      newSet("a") should be(false)
+      newSet("b") should be(false)
+      newSet("c") should be(false)
+      newSet("d") should be(true)
+      newSet("e") should be(true)
+    }
+  }
 }

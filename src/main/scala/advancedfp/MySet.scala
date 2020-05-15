@@ -3,9 +3,6 @@ package advancedfp
 import scala.annotation.tailrec
 
 trait MySet[A] extends (A => Boolean) {
-  def head: A
-  def tail: MySet[A]
-
   override def apply(v1: A): Boolean = contains(v1)
 
   def isEmpty: Boolean
@@ -16,21 +13,27 @@ trait MySet[A] extends (A => Boolean) {
   def flatMap[B](f: A => MySet[B]): MySet[B]
   def filter(f: A => Boolean): MySet[A]
 
-  def -(value: A): MySet[A]
+  def -(elem: A): MySet[A]
   def --(otherSet: MySet[A]): MySet[A]
   def &(otherSet: MySet[A]): MySet[A]
+
+  def unary_! : MySet[A]
 
   override def equals(obj: Any): Boolean = obj match {
     case otherSet: MySet[A] => --(otherSet).isEmpty
     case _ => false
   }
 
+  def asString(): String
   override def toString(): String = {
     @tailrec
-    def stringify(set: MySet[A], accum: String = ""): String =
-      if (set.isEmpty) accum
-      else if (accum.isEmpty) stringify(set.tail, set.head.toString)
-      else stringify(set.tail, s"$accum, ${set.head}")
+    def stringify(set: MySet[A], accum: String = ""): String = set match {
+      case setValue: MySetValue[A] if accum.isEmpty =>
+        stringify(setValue.tail, setValue.head.toString)
+      case setValue: MySetValue[A] =>
+        stringify(setValue.tail, s"$accum, ${setValue.head}")
+      case _ => accum
+    }
 
     if (isEmpty) "{}"
     else s"{${stringify(this)}}"
@@ -50,9 +53,6 @@ object MySet {
 }
 
 class MyEmptySet[A] extends MySet[A] {
-  override def head: A = throw new NoSuchElementException
-  override def tail: MySet[A] = throw new NoSuchElementException
-
   override def isEmpty: Boolean = true
   override def contains(elem: A): Boolean = false
   override def +(elem: A): MySet[A] = MySetValue(elem, new MyEmptySet)
@@ -61,9 +61,28 @@ class MyEmptySet[A] extends MySet[A] {
   override def flatMap[B](f: A => MySet[B]): MySet[B] = new MyEmptySet[B]
   override def filter(f: A => Boolean): MySet[A] = this
 
-  override def -(value: A): MySet[A] = this
+  override def -(elem: A): MySet[A] = this
   override def --(otherSet: MySet[A]): MySet[A] = otherSet
   override def &(otherSet: MySet[A]): MySet[A] = otherSet
+
+  override def unary_! : MySet[A] = new PropertyBasedSet[A](_ => true)
+  override def asString(): String = ""
+}
+
+class PropertyBasedSet[A](prop: A => Boolean) extends MySet[A] {
+  override def isEmpty: Boolean = throw new IllegalArgumentException
+  override def contains(elem: A): Boolean = prop(elem)
+  override def +(elem: A): MySet[A] = new PropertyBasedSet[A](p => prop(p) || p.equals(elem))
+  override def ++(otherSet: MySet[A]): MySet[A] = new PropertyBasedSet[A](p => prop(p) || otherSet(p))
+  override def map[B](f: A => B): MySet[B] = throw new IllegalArgumentException
+  override def flatMap[B](f: A => MySet[B]): MySet[B] = throw new IllegalArgumentException
+  override def filter(f: A => Boolean): MySet[A] = new PropertyBasedSet[A](p => prop(p) && f(p))
+  override def -(elem: A): MySet[A] =  filter(value => !value.equals(elem))
+  override def --(otherSet: MySet[A]): MySet[A] = filter(!otherSet)
+  override def &(otherSet: MySet[A]): MySet[A] = filter(otherSet)
+  override def unary_! : MySet[A] = new PropertyBasedSet[A](p => !prop(p))
+
+  override def asString(): String = prop.toString()
 }
 
 case class MySetValue[A](head: A, tail: MySet[A]) extends MySet[A]{
@@ -81,12 +100,18 @@ case class MySetValue[A](head: A, tail: MySet[A]) extends MySet[A]{
     else filteredTail
   }
 
-  override def -(value: A): MySet[A] =
-    if (head.equals(value)) tail
-    else tail - value + head
+  override def -(elem: A): MySet[A] =
+    if (head.equals(elem)) tail
+    else tail - elem + head
 
   override def --(otherSet: MySet[A]): MySet[A] = filter(v => !otherSet(v))
   override def &(otherSet: MySet[A]): MySet[A] = filter(otherSet)
+
+  override def unary_! : MySet[A] = new PropertyBasedSet[A](p => !contains(p))
+
+  override def asString(): String =
+    if (tail.isEmpty) head.toString
+    else s", $head${tail.asString}"
 }
 
 
