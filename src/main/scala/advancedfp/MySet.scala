@@ -3,7 +3,6 @@ package advancedfp
 import scala.annotation.tailrec
 
 trait MySet[A] extends (A => Boolean) {
-
   def head: A
   def tail: MySet[A]
 
@@ -16,6 +15,15 @@ trait MySet[A] extends (A => Boolean) {
   def map[B](f: A => B): MySet[B]
   def flatMap[B](f: A => MySet[B]): MySet[B]
   def filter(f: A => Boolean): MySet[A]
+
+  def -(value: A): MySet[A]
+  def --(otherSet: MySet[A]): MySet[A]
+  def &(otherSet: MySet[A]): MySet[A]
+
+  override def equals(obj: Any): Boolean = obj match {
+    case otherSet: MySet[A] => --(otherSet).isEmpty
+    case _ => false
+  }
 
   override def toString(): String = {
     @tailrec
@@ -53,7 +61,9 @@ class MyEmptySet[A] extends MySet[A] {
   override def flatMap[B](f: A => MySet[B]): MySet[B] = new MyEmptySet[B]
   override def filter(f: A => Boolean): MySet[A] = this
 
-  override def equals(obj: Any): Boolean = obj.isInstanceOf[MyEmptySet[A]]
+  override def -(value: A): MySet[A] = this
+  override def --(otherSet: MySet[A]): MySet[A] = otherSet
+  override def &(otherSet: MySet[A]): MySet[A] = otherSet
 }
 
 case class MySetValue[A](head: A, tail: MySet[A]) extends MySet[A]{
@@ -71,19 +81,12 @@ case class MySetValue[A](head: A, tail: MySet[A]) extends MySet[A]{
     else filteredTail
   }
 
-  override def equals(obj: Any): Boolean = obj match {
-    case otherSet: MySetValue[A] => {
-      @tailrec
-      def containsAll(set: MySet[A], values: MySet[A]): Boolean =
-        if (values.isEmpty) true
-        else if (!set.contains(values.head)) false
-        else containsAll(set, values.tail)
+  override def -(value: A): MySet[A] =
+    if (head.equals(value)) tail
+    else tail - value + head
 
-      containsAll(this, otherSet) && containsAll(otherSet, this)
-    }
-    case _ => false
-  }
-
+  override def --(otherSet: MySet[A]): MySet[A] = filter(v => !otherSet(v))
+  override def &(otherSet: MySet[A]): MySet[A] = filter(otherSet)
 }
 
 

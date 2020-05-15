@@ -124,4 +124,72 @@ class MySetSpec extends AnyFunSpec with Matchers {
       newSet should be(MySet("a"))
     }
   }
+  describe("remove") {
+    it("should do nothing to an empty set") {
+      val mySet = MySet[String]()
+
+      val newSet = mySet - "a"
+
+      newSet should be(mySet)
+    }
+    it("should remove one value from a set") {
+      val mySet = MySet("a", "b")
+
+      val newSet = mySet - "a"
+
+      newSet should be(MySet("b"))
+    }
+  }
+  describe("&") {
+    it("should return empty with two empty set") {
+      val mySet1 = MySet[String]()
+      val mySet2 = MySet[String]()
+
+      val newSet = mySet1 & mySet2
+
+      newSet should be(MySet[String]())
+    }
+    it("should return empty with one empty set and other with values") {
+      val mySet1 = MySet("a", "b")
+      val mySet2 = MySet[String]()
+
+      val newSet = mySet1 & mySet2
+
+      newSet should be(MySet[String]())
+    }
+    it("should return values in both sets when both has values") {
+      val mySet1 = MySet("a", "b")
+      val mySet2 = MySet("b", "c")
+
+      val newSet = mySet1 & mySet2
+
+      newSet should be(MySet("b"))
+    }
+  }
+  describe("--") {
+    it("should return empty with two empty set") {
+      val mySet1 = MySet[String]()
+      val mySet2 = MySet[String]()
+
+      val newSet = mySet1 -- mySet2
+
+      newSet should be(MySet[String]())
+    }
+    it("should return the set with values with one empty set and other with values") {
+      val mySet1 = MySet("a", "b")
+      val mySet2 = MySet[String]()
+
+      val newSet = mySet1 -- mySet2
+
+      newSet should be(mySet1)
+    }
+    it("should return values not present in both sets when both has values") {
+      val mySet1 = MySet("a", "b")
+      val mySet2 = MySet("b", "c")
+
+      val newSet = mySet1 -- mySet2
+
+      newSet should be(MySet("a", "c"))
+    }
+  }
 }
