@@ -36,11 +36,21 @@ class MyStreamSpec extends AnyFunSpec with Matchers {
   }
   describe("fibonacci") {
     it("should return first 8 numbers of fibonacci sequence") {
-      val fibonacci = MyStream.from((0, 1))((tup: (Int, Int)) => (tup._2, tup._1 + tup._2))
-          .map(tup => tup._1)
+      val fibonacci = MyStream.from((0, 1))(tup => (tup._2, tup._1 + tup._2))
+          .map(_._1)
           .takeAsList(8)
 
       fibonacci should be (List(0, 1, 1, 2, 3, 5, 8, 13))
+    }
+  }
+
+  describe("Erathostenes sieve") {
+    it("should return first 8 prime numbers") {
+      val first8Primes = MyStream.from(MyStream.from(2)(_ + 1))(stream => stream.tail.filter(_ % stream.head != 0))
+        .map(_.head)
+        .takeAsList(8)
+
+      first8Primes should be (List(2, 3, 5, 7, 11, 13, 17, 19))
     }
   }
 }
