@@ -41,7 +41,7 @@ class AttemptSpec extends AnyFunSpec with Matchers with Inside {
     val g = (value: String) => Attempt(s"$value!")
 
     it("should satisfy left-identity law") {
-      assert(Attempt(x).flatMap(f) == f(x))
+      assert(monad.flatMap(f) == f(x))
     }
     it("should satisfy right-identity law") {
       assert(monad.flatMap(Attempt(_)) == monad)

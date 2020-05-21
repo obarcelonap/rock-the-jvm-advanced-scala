@@ -53,7 +53,6 @@ class MyStreamValue[+A](current: A, next: => MyStream[A]) extends MyStream[A] {
 
   override def map[B](f: A => B): MyStream[B] = new MyStreamValue[B](f(head), tail.map(f))
   override def flatMap[B](f: A => MyStream[B]): MyStream[B] = {
-    println(s"head $head")
     f(head) ++ tail.flatMap(f)
   }
   override def filter(p: A => Boolean): MyStream[A] = {
