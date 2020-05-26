@@ -2,6 +2,7 @@ package implicits
 
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
+import implicits._
 
 class UserSpec extends AnyFunSpec with Matchers {
 
@@ -10,13 +11,13 @@ class UserSpec extends AnyFunSpec with Matchers {
       val john = User("john", "john@bla.com")
       val johny = User("john", "johny@bla.com")
 
-      EqualByName(john, johny) should be (true)
+      EqualByName(john, johny) should be(true)
     }
     it("should be different when two users has different name") {
       val john = User("john", "john@bla.com")
       val johny = User("johny", "johny@bla.com")
 
-      EqualByName(john, johny) should be (false)
+      EqualByName(john, johny) should be(false)
     }
   }
 
@@ -24,19 +25,28 @@ class UserSpec extends AnyFunSpec with Matchers {
     it("should be equal when two users are the same") {
       val john = User("john", "john@bla.com")
 
-      CompletelyEqual(john, john) should be (true)
+      CompletelyEqual(john, john) should be(true)
     }
     it("should be different when two users has different name") {
       val john = User("john", "john@bla.com")
       val johny = User("johny", "john@bla.com")
 
-      CompletelyEqual(john, johny) should be (false)
+      CompletelyEqual(john, johny) should be(false)
     }
     it("should be different when two users has different email") {
       val john = User("john", "john@bla.com")
       val johny = User("john", "johny@bla.com")
 
-      CompletelyEqual(john, johny) should be (false)
+      CompletelyEqual(john, johny) should be(false)
+    }
+  }
+
+  describe("implicit") {
+    it("should use EqualByName implicitly") {
+      val john = User("john", "john@bla.com")
+      val johny = User("john", "johny@bla.com")
+
+      Equal(john, johny) should be(true)
     }
   }
 }
