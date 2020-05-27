@@ -6,7 +6,7 @@ case class User(name: String, email: String) {
   }
 }
 
-object implicits {
+object UserImplicits {
   implicit object EqualByName extends Equal[User] {
     override def apply(a: User, b: User): Boolean = a.name == b.name
   }

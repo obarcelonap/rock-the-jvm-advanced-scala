@@ -2,7 +2,7 @@ package implicits
 
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
-import implicits._
+import UserImplicits._
 
 class UserSpec extends AnyFunSpec with Matchers {
 

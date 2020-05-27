@@ -1,13 +1,16 @@
 package advancedfp
 
-object Chatbot extends App {
-  val reply: PartialFunction[String, String] = {
+class Chatbot {
+  def reply: PartialFunction[String, String] = {
     case "Hi" => "Hello"
     case "Bye" => "Ciao"
     case _ => "I don't understand you"
   }
+}
+object Chatbot extends App {
+  val bot = new Chatbot
 
   scala.io.Source.stdin.getLines()
-    .map(reply)
+    .map(bot.reply)
     .foreach(println)
 }
